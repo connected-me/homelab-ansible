@@ -1,0 +1,92 @@
+---
+#file: roles/common/tasks/main.yml
+- name: be sure zsh is installed
+  ansible.builtin.apt:
+    name: zsh
+    state: present
+  tags: zsh, bootstrap
+
+- name: remove requiretty from sudoers
+  connection: paramiko
+  lineinfile:
+    path: /etc/sudoers
+    state: absent
+    regexp: ^\s*Defaults\s+requiretty$
+    validate: /usr/sbin/visudo -cf %s
+  when: ansible_connection != "local"
+  become: true
+  tags: bootstrap
+
+- name: explicitly gather facts
+  setup:
+
+- name: install sudo
+  apt:
+    name: sudo
+    state: present
+    cache_valid_time: 3600
+  when: ansible_facts["os_family"] == "Debian"
+  become: true
+
+- name: make sure we have an ansible group
+  become: true
+  group:
+    name: ansible
+    state: present
+
+- name: Allow ansible users to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: "^%ansible"
+    line: "%ansible ALL=(ALL) NOPASSWD: ALL"
+    validate: /usr/sbin/visudo -cf %s
+  become: true
+
+- name: add ansible user and set groups
+  user:
+    name: connops
+    # On RedHat systems, we put the ansible user in the wheel group to
+    # work-around cPanel's open file limit of 100.  Mitogen uses file
+    # descriptors 100 and 101 for internal purposes.  See:
+    # https://github.com/dw/mitogen/issues/644
+    groups:
+      "{{ 'wheel' if ansible_facts['os_family'] == 'RedHat' else '' }}"
+    home: "/home/connops"
+    shell: "/usr/bin/zsh"
+  become: true
+
+- name: add sudoers users to ansible group
+  user:
+    name: connops
+    groups: ansible
+    append: yes
+#- name: allow ansible user to have passwordless sudo
+#  lineinfile:
+#    path: /etc/sudoers.d/connops
+#    line: "connops ALL=(ALL) NOPASSWD: ALL"
+    # Older systems require this to be 0440 or sudo breaks.
+#    mode: 0440
+#    create: yes
+#    validate: /usr/sbin/visudo -cf %s
+  become: true
+
+
+- name: create ansible's authorized_keys
+  become: true
+  #become_user: "{{ 'root' if ansible_check_mode else 'connops' }}"
+  authorized_key:
+    user: connops
+    path: "/home/connops/.ssh/authorized_keys"
+    key: |
+      {{ lookup('file', 'ansible.ed25519.key.pub') }}
+      {{ lookup('file', 'ansible.rsa.key.pub') }}
+    exclusive: yes
+
+- name: remove ansible's password
+  become: true
+  user:
+    name: connops
+    password: "*"
+
+#verify version of python is linked to /usr/bin/python

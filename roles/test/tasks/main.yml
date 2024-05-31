@@ -1,0 +1,130 @@
+---
+#file: roles/common/tasks/main.yml
+- name: make sure ufw is installed
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: yes
+  tags: common
+  become: yes
+
+- name: Configure the kernel to keep connections alive when enabling the firewall
+  sysctl:
+    name: net.netfilter.nf_conntrack_tcp_be_liberal
+    value: 1
+    state: present
+    sysctl_set: yes
+    reload: yes
+  become: yes
+  tags: common
+
+- name: Allow all access from RFC1918 networks to this host
+  community.general.ufw:
+    rule: allow
+    name: '{{ item }}'
+  loop:
+    - DNS
+    - openSSH
+  tags: common
+  become: yes
+
+- name: set UFW default in to deny
+  community.general.ufw:
+    direction: incoming
+    default: deny
+  tags: common default
+  become: yes
+
+- name: set UFW default out to deny
+  community.general.ufw:
+    direction: outgoing
+    default: deny
+  tags: common default
+  become: yes
+
+- name: Copy app files to /etc/ufw/applications.d
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/ufw/applications.d/{{ item }}"
+  loop:
+    - kubernetes
+    - ntp-in
+    - ntp-out
+    - wazuh-agent
+    - zabbix
+  tags: common ufw-files
+  become: yes
+
+- name: allow ntp inbound traffic
+  community.general.ufw:
+    direction: in
+    rule: allow
+  name: '{{ item }}'
+  loop:
+    - ntp-in
+  tags: common 
+  become: yes
+
+- name: allow ntp outbound traffic
+  community.general.ufw:
+    direction: out
+    rule: allow
+    name: '{{ item }}'
+  loop:
+    - ntp-out
+  tags: common
+  become: yes
+
+- name: enable secure agents outbount
+  community.general.ufw:
+    direction: out
+    rule: allow
+    name: '{{ item }}'
+  loop:
+    - wazuh-agent
+    - zabbix
+  tags: common agents
+  become: yes
+
+- name: allow kubernetes inbound traffic
+  community.general.ufw:
+    direction: in
+    rule: allow
+    name: '{{ item }}'
+  loop:
+    - kubernetes
+    - www
+    - www secure
+  tags: kubernetes
+  become: yes
+
+- name: allow traffic to nfs and samba
+  community.general.ufw:
+    direction: out
+    rule: allow
+    name: '{{ item }}'
+  loop:
+    - nfs
+    - cifs
+  tags: common
+  become: yes
+
+- name: allow all traffic from IP_Range
+  community.general.ufw:
+    direction: in
+    rule: allow
+    from_ip: '{{ item }}'
+  loop:
+    - '{{IP_Range_home1}}'
+    - '{{IP_Range_home2}}'
+    - '{{IP_Range_lab1}}'
+    - '{{IP_Range_cluster1}}'
+    - '{{IP_Range_virt1}}'
+  tags: common
+  become: yes
+
+- name: enable ufw
+  community.general.ufw:
+    state: enabled
+  tags: common
+  become: yes

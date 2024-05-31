@@ -1,0 +1,8 @@
+# ---> Ansible
+*.retry
+*.pub
+*.key
+*.crt
+*.pem
+*.cer
+.vscode/*

@@ -1,0 +1,4 @@
+[Wazuh-agent]
+title=wazuh-agent
+description=Wazuh agent sends security compliance data to wazuh server
+ports=1515,1514/tcp

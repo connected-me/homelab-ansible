@@ -1,0 +1,10 @@
+---
+#file: group_vars/servers.yml
+#ansible_python_interpreter: '/usr/bin/python'
+ansible_user: "your ansible user here"
+ansible_ssh_private_key_file: /etc/ansible/certs/ansible.rsa.key
+IP_Range_home1: 10.1.24.0/24
+IP_Range_home2: 10.1.25.0/24
+IP_Range_lab1: 10.2.100.0/24
+IP_Range_cluster1: 10.4.0.0/16
+IP_Range_virt1: 192.168.56.0/24

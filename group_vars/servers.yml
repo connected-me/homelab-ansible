@@ -1,0 +1,6 @@
+---
+#file: group_vars/servers.yml
+#ansible_python_interpreter: '/usr/bin/python'
+ansible_user: "your ansible user here"
+#select the correct directory to your ssh key
+ansible_ssh_private_key_file: /etc/ansible/certs/ansible.rsa.key

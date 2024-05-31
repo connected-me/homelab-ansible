@@ -1,0 +1,4 @@
+[Kubernetes]
+title=K8s
+description=Kubernetes is the best container orcistration since sliced bread.
+ports=179,5473,6443,2379,4149,10250,10255,10256,9099,6443,7946/tcp|4789/udp

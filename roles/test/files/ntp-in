@@ -1,0 +1,4 @@
+[NTP-in]
+title=ntp-in
+description=Network time protocol, the greatest of protocols for time
+ports=1023/udp

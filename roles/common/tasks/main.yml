@@ -1,0 +1,47 @@
+---
+#file: roles/common/tasks/main.yml
+- name: Verify baseline apps are installed
+  ansible.builtin.apt:
+    pkg: 
+    - nano
+    - htop
+    - smartmontools
+    - neofetch
+  tags: verify
+  become: yes
+  
+- name: validate bootstrap was successful
+  ansible.builtin.getent:
+    database: passwd
+    key: connops
+  tags: verify
+
+- name: update packages
+  become: yes
+  apt:
+    update_cache: yes
+  tags: update
+
+- name: Update all packages to their latest version
+  become: yes
+  apt:
+    name: "*"
+    state: latest
+  tags: update
+
+- name: clean up
+  become: yes
+  apt:
+    autoremove: yes
+  tags: update
+
+- name: Check if reboot required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+  tags: update
+
+- name: Reboot if required
+  reboot:
+  when: reboot_required_file.stat.exists == true
+  tags: update

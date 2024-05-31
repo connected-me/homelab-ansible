@@ -1,0 +1,4 @@
+[Zabbix]
+title=zabbix
+description=zabbix traffic to keep track of networking data
+ports=10050/tcp

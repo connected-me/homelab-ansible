@@ -1,0 +1,4 @@
+[NTP-out]
+title=ntp-out
+description=Network time protocol, the greatest of protocols for time
+ports=123/udp

@@ -1,0 +1,26 @@
+# This is a copy of the default ansible 'hosts' file.
+#
+#   - Machines in this list shoulds only effect the lab environment
+#   - at some point this might come down to just namespaces
+
+[k8sX86Workers]
+devmini1.dev.connected-me.com
+devmini2.dev.connected-me.com
+devmini3.dev.connected-me.com
+
+[k8sArm64Workers]
+tx1-dev1.dev.connected-me.com
+
+[k8sGPUWorkers]
+tx1-dev1.dev.connected-me.com
+
+[k8sArm64Controllers]
+devprim1.dev.connected-me.com
+
+[allservers:children]
+k8sX86Workers
+k8sArm64Workers
+k8sArm64Controllers
+
+[test]
+192.168.122.113

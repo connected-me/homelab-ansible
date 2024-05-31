@@ -1,0 +1,9 @@
+---
+#file servers.yml
+- hosts: servers
+  roles:
+    - common
+
+- hosts: test
+  roles:
+    - test

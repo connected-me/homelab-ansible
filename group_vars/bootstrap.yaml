@@ -1,0 +1,4 @@
+---
+#file: group_vars/bootstrap.yml
+ansible_python_interpreter: '/usr/bin/python3'
+ansible_user: "root or the initial boot strap username"

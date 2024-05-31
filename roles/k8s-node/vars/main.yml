@@ -1,0 +1,3 @@
+---
+#file: roles/common/vars/main.yml
+#intent was to put k8s version information here, but group vars makes more sense
